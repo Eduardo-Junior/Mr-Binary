@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { prefix, token, apiKey, authDomain, databaseURL, projectId, storageBucket, messagingSenderId, appId } = require('./config.json');
 const ProfileLevel = require('./classes/ProfileLevel.js');
 
 const client = new Discord.Client();
@@ -10,13 +10,13 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 const firebase = require ("firebase");
 
 var firebaseConfig = {
-  apiKey: "AIzaSyAKZTeJhPB6Pr-d73fnfJgQjwwiDMzipZQ",
-  authDomain: "botlevel-1a20a.firebaseapp.com",
-  databaseURL: "https://botlevel-1a20a.firebaseio.com",
-  projectId: "botlevel-1a20a",
-  storageBucket: "botlevel-1a20a.appspot.com",
-  messagingSenderId: "54687765071",
-  appId: "1:54687765071:web:8b9112382918183be1d03a"
+  apiKey,
+  authDomain,
+  databaseURL,
+  projectId,
+  storageBucket,
+  messagingSenderId,
+  appId
 };
 
 firebase.initializeApp(firebaseConfig);

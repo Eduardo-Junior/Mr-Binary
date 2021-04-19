@@ -1,12 +1,12 @@
-const Discord = require ('discord.js');
+const firebase = require ("firebase");
+const Discord = require('discord.js');
 
 
 class Profile{
 
+    constructor(Nome, Xp, Level, ID, Avatar, Acumulado){
 
-    constructor(Name, Xp, Level, ID, Avatar, Acumulado){
-
-        this.userName = Name;
+        this.userName = Nome;
         this.xp = Xp;
         this.level = Level;
         this.id = ID;
@@ -15,67 +15,103 @@ class Profile{
 
     }
 
-    exports.create = function(guild){
+    CreateNewProfile(guild){
+
+        const database = firebase.database();
+
+        var userObj = {nome: this.userName, XP: this.xp, Level: this.level, ID: this.id, AVATAR: this.avatar, XPACUMULADO: this.XPAcumulado}
 
         database.ref(`Servidores/Levels/${guild}/${this.id}`)
         .once('value').then(async function(db) {
 
-            database.ref(`Servidores/Levels/${guild}/${author}`)
+            database.ref(`Servidores/Levels/${guild}/${userObj.ID}`)
             .set({
 
-                xp: this.xp,
-                level: this.level,
-                XPAcumulado: this.XPAcumulado,
-                UserName: this.userName,
-                ID: this.id,
-                Avatar: this.avatar
+                xp: userObj.XP,
+                level: userObj.Level,
+                XPAcumulado: userObj.XPACUMULADO,
+                UserName: userObj.nome,
+                ID: userObj.ID,
+                Avatar: userObj.AVATAR
 
-            })
+            });
 
         });
 
     }
 
-    exports.update = function(guild){
+    UpdateProfile(guild, XpPlus){
+
+        const database = firebase.database();
+
+        var userObj = {nome: this.userName, XP: this.xp, Level: this.level, ID: this.id, AVATAR: this.avatar, XPACUMULADO: this.XPAcumulado}
 
         database.ref(`Servidores/Levels/${guild}/${this.id}`)
         .once('value').then(async function(db) {
-            
-           let XpPlus = Math.floor(Math.random() * db.val().level) + 1;
 
-            if(db.val().xp * 100 < db.val().xp){
+            database.ref(`Servidores/Levels/${guild}/${userObj.ID}`)
+            .update({
 
-                if(db.val().xp + XpPlus > db.val().level * 100){
-                    database.ref(`Servidores/Levels/${guild}/${this.id}`).update({
+                    xp: db.val().xp + XpPlus,
+                    XPAcumulado: db.val().XPAcumulado + XpPlus,
+                    UserName: userObj.nome,
+                    ID: userObj.ID,
+                    Avatar: userObj.AVATAR
 
-                        xp: 1,
-                        level: db.val().level + 1,
-                        XPAcumulado: db.val().XPAcumulado + XpPlus,
-                        UserName: this.userName,
-                        ID: this.id,
-                        Avatar: this.avatar
+            })
+        });
+    }
 
+    UpdateLevel(guild, XpPlus){
 
-                    })
-                }
+        const database = firebase.database();
 
-                message.channel.send(`Parabéns, ${this.userName}! Você acaba de subir para o nível ${db.val().level+1}!`)
+        var userObj = {nome: this.userName, XP: this.xp, Level: this.level, ID: this.id, AVATAR: this.avatar, XPACUMULADO: this.XPAcumulado}
 
-            }else{
-                database.ref(`Servidores/Levels/${guild}/${this.id}`).update({
+        database.ref(`Servidores/Levels/${guild}/${this.id}`)
+        .once('value').then(async function(db) {
 
-                    xp: db.val(),
-                    XPAcumulado: db.val() + XpPlus,
-                    UserName: this.userName,
-                    ID: this.id,
-                    Avatar: this.avatar
+            if(db.val().level * 100 < db.val().xp){
+                
+                database.ref(`Servidores/Levels/${guild}/${userObj.ID}`)
+                .update({
 
+                    xp: 1,
+                    level: db.val().level + 1,
+                    XPAcumulado: db.val().XPAcumulado + XpPlus,
+                    UserName: userObj.nome,
+                    ID: userObj.ID,
+                    Avatar: userObj.AVATAR
 
                 })
             }
-
         });
-    }  
+    }
+
+    UpdateLevelHoldXp(guild, XpPlus){
+
+        var userObj = {nome: this.userName, XP: this.xp, Level: this.level, ID: this.id, AVATAR: this.avatar, XPACUMULADO: this.XPAcumulado}
+
+        const database = firebase.database();
+
+        database.ref(`Servidores/Levels/${guild}/${this.id}`)
+        .once('value').then(async function(db) {
+
+            var guardaResto = db.val().xp - (db.val().level * 100);
+
+            database.ref(`Servidores/Levels/${guild}/${userObj.ID}`)
+            .update({
+
+                xp: guardaResto,
+                level: db.val().level + 1,
+                XPAcumulado: db.val().XPAcumulado + XpPlus,
+                UserName: userObj.nome,
+                ID: userObj.ID,
+                Avatar: userObj.AVATAR
+
+            })
+        });
+    }
 }
 
 module.exports = Profile;
